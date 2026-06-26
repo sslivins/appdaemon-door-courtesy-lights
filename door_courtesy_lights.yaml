@@ -1,0 +1,95 @@
+door_courtesy_lights:
+  module: door_courtesy_lights
+  class: DoorCourtesyLights
+  log: door_courtesy_lights_log
+  global_dependencies:
+    - home_lib
+
+  # Talk to the arbitration app (must match its app name).
+  controller: device_controller
+
+  # ---- Defaults (used by any mapping that doesn't override them) ----
+  # Turn the light off this long after the door is closed AND presence is clear.
+  off_delay_seconds: 300
+  # Brightness the courtesy light comes on at.
+  brightness_pct: 75
+  # Night window is from (sunset - night_margin) until sunrise.
+  night_margin: "00:30:00"
+
+  # How often (seconds) to re-check AP-based presence. Only used if at least one
+  # mapping has a presence source of type "ap".
+  poll_interval_seconds: 60
+
+  # App-level defaults for presence sources of type "ap". Name the access point
+  # by friendly name (ap_name) or entity id (ap_entity) - the MAC is read from
+  # that device_tracker's `mac` attribute at runtime. ap_mac is still accepted
+  # if you'd rather hard-code it. A per-source block may override any of these,
+  # so different doors can watch different access points.
+  ap_presence:
+    ap_name: "Backyard AP"
+    person_entities:
+      - person.stefan_slivinski
+      - person.megan
+      - person.mackenzie
+      - person.nadia
+      - person.natalie
+      - person.eric
+
+  # Door (binary_sensor) -> light(s) it should switch on at night.
+  #
+  # Per-mapping overrides (all optional): off_delay_seconds, brightness_pct,
+  # night_margin, and `presence` (a list). A mapping may drive one light
+  # (`light:`) or several (`lights: [a, b]`). Presence keeps the light(s) on
+  # while active but never turns them on. Omit `presence` (or set it to []) for
+  # a door with no good way to detect someone outside - those lights just go off
+  # off_delay after the door closes. Each presence source is either:
+  #   - a state sensor:  binary_sensor.usl_motion_motion   (active "on"), or
+  #     {entity: binary_sensor.x, active_state: "on"}; or
+  #   - the AP check:  {type: ap}   (uses ap_presence above; may override per
+  #     door with ap_name / ap_entity / ap_mac / person_entities).
+  mappings:
+    - door: binary_sensor.storage_room_alarm_panel_pro_double_kitchen_door
+      light: light.exterior_deck_wall_lights
+      open_state: "on"
+      presence:
+        - type: ap                       # phone on the Backyard AP
+
+    - door: binary_sensor.storage_room_alarm_panel_pro_single_kitchen_door
+      light: light.exterior_pond_wall_lights
+      open_state: "on"
+      presence:
+        - type: ap
+
+    # Office door: no reliable way to sense someone outside, so no presence -
+    # the light goes off off_delay after the door closes.
+    - door: binary_sensor.storage_room_alarm_panel_pro_office_door
+      light: light.exterior_office_door
+      open_state: "on"
+      presence: []
+
+    - door: binary_sensor.storage_room_alarm_panel_pro_house_to_garage_door
+      lights:
+        - light.garage_stairs
+        - light.garage_ceiling_lights
+      open_state: "on"
+      presence:
+        - type: ap
+          ap_name: "Garage AP"
+
+    - door: binary_sensor.storage_room_alarm_panel_pro_second_garage_door
+      light: light.second_garage_main_lights
+      open_state: "on"
+      presence:
+        - type: ap
+          ap_name: "Garage AP"
+
+    # Front door: indoor foyer lights, no outside presence. Comes on at night
+    # (default night_margin = 30 min before sunset) and goes off 5 min after
+    # the door closes.
+    - door: binary_sensor.storage_room_alarm_panel_pro_front_door
+      lights:
+        - light.front_foyer_center_ceiling
+        - light.front_foyer_side_ceiling
+      open_state: "on"
+      presence: []
+      off_delay_seconds: 300

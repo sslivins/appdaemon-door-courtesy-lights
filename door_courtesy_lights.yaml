@@ -67,11 +67,14 @@ door_courtesy_lights:
       open_state: "on"
       presence: []
 
+    # Garage doors: interior garage lights always come on when the door opens,
+    # regardless of time of day (ignore_night).
     - door: binary_sensor.storage_room_alarm_panel_pro_house_to_garage_door
       lights:
         - light.garage_stairs
         - light.garage_ceiling_lights
       open_state: "on"
+      ignore_night: true
       presence:
         - type: ap
           ap_name: "Garage AP"
@@ -79,6 +82,7 @@ door_courtesy_lights:
     - door: binary_sensor.storage_room_alarm_panel_pro_second_garage_door
       light: light.second_garage_main_lights
       open_state: "on"
+      ignore_night: true
       presence:
         - type: ap
           ap_name: "Garage AP"

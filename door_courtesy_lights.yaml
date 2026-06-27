@@ -75,6 +75,7 @@ door_courtesy_lights:
         - light.garage_ceiling_lights
       open_state: "on"
       ignore_night: true
+      off_delay_seconds: 600
       presence:
         - type: ap
           ap_name: "Garage AP"
@@ -83,6 +84,7 @@ door_courtesy_lights:
       light: light.second_garage_main_lights
       open_state: "on"
       ignore_night: true
+      off_delay_seconds: 600
       presence:
         - type: ap
           ap_name: "Garage AP"
